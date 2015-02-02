@@ -1,3 +1,4 @@
+IF(NOT BIICODE)
 cmake_minimum_required(VERSION 2.8.11)
 
 #-----------------------------
@@ -37,3 +38,19 @@ endif(WIN32)
 file(COPY
     ${CMAKE_SOURCE_DIR}/test_data/
     DESTINATION ${CMAKE_INSTALL_PREFIX}/bin/test_data)
+
+ELSE()
+	file(READ ${CMAKE_CURRENT_SOURCE_DIR}/biicode.conf BIICODE_CONF)
+	string(FIND ${BIICODE_CONF}  "opencv(beta)" pos1)
+	if(NOT pos1 EQUAL -1)
+		add_definitions(-DOPENCV_NEW=1)
+	endif()
+	file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/test_data/
+	     DESTINATION ${CMAKE_SOURCE_DIR}/../bin/test_data)
+
+	INIT_BIICODE_BLOCK()
+	ADD_BIICODE_TARGETS()
+	foreach(EXECUTABLE ${BII_BLOCK_EXES})
+		SET_TARGET_PROPERTIES(${BII_${EXECUTABLE}_TARGET} PROPERTIES OUTPUT_NAME ${EXECUTABLE})
+	endforeach()
+ENDIF()
